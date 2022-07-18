@@ -1,7 +1,18 @@
-import { Link } from 'react-router-dom'
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Navbar, Container, Nav, NavLink } from "react-bootstrap";
+import firebase from "../firebase.js";
 
 function Heading() {
+  const user = useSelector((state) => state.user);
+  const navigate = useNavigate();
+
+  const LogoutHandler = () => {
+    firebase.auth().signOut();
+    navigate("/");
+  };
+
   return (
     <Navbar bg="dark" expand="lg" variant="dark">
       <Container>
@@ -9,45 +20,71 @@ function Heading() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-                <Link 
-                to="/" 
-                style={{
-                  color: "white",
-                  textDecoration: "none",
-                  marginRight: "10px",
-                }}
-                >
-                  Home
-                </Link>
-                
-                <Link 
-                to="/upload" 
-                style={{
-                  color: "white",
-                  textDecoration: "none",
-                  marginRight: "10px",
-                }}
-                >
-                  upload
-                </Link>
+            <Link
+              to="/"
+              style={{
+                color: "white",
+                textDecoration: "none",
+                marginRight: "10px",
+              }}
+            >
+              Home
+            </Link>
 
-                <Link 
-                to="/" 
+            <Link
+              to="/upload"
+              style={{
+                color: "white",
+                textDecoration: "none",
+                marginRight: "10px",
+              }}
+            >
+              upload
+            </Link>
+          </Nav>
+        </Navbar.Collapse>
+        <Navbar.Collapse className="justify-content-end">
+          {user.accessToken ? (
+            <>
+              <Navbar.Text
                 style={{
                   color: "white",
-                  textDecoration: "none",
+                  cursor: "pointer",
                   marginRight: "10px",
                 }}
+                onClick={() => LogoutHandler()}
+              >
+                Logout
+              </Navbar.Text>
+              <br />
+              <Navbar.Text style={{ color: "white", cursor: "pointer" }}>
+                <Link
+                  to="/MyPage"
+                  style={{
+                    color: "white",
+                    textDecoration: "none",
+                    marginRight: "10px",
+                  }}
                 >
-                  list
-                </Link>  
-
-              </Nav>
-            </Navbar.Collapse>
-          </Container>
-        </Navbar>
-      );
-    }   
+                  MyPage
+                </Link>
+              </Navbar.Text>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              style={{
+                color: "white",
+                textDecoration: "none",
+              }}
+            >
+              login
+            </Link>
+          )}
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
+  );
+}
 
 export default Heading;
-

@@ -1,37 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import Avatar from "react-avatar";
 import axios from "axios";
-import { Spinner } from "react-bootstrap";
 import { PostDiv, Post, BtnDiv } from "../../Style/PostDetailCSS.js";
 
-function Detail() {
+function Detail(props) {
   let params = useParams();
   let navigate = useNavigate();
-  const [PostInfo, setPostInfo] = useState({});
-  const [Flag, setFlag] = useState(false);
-
-  useEffect(() => {
-    console.log(params);
-    let body = {
-      postNum: params.postNum,
-    };
-    axios
-      .post("/api/post/detail", body)
-      .then((response) => {
-        console.log(response);
-        if (response.data.success) {
-          setPostInfo(response.data.post);
-          setFlag(true);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
-
-  useEffect(() => {
-    console.log(PostInfo);
-  }, [PostInfo]);
+  const user = useSelector((state) => state.user);
 
   const DeleteHandler = () => {
     if (window.confirm("정말 삭제 하시겠습니까?")) {
@@ -56,33 +33,39 @@ function Detail() {
 
   return (
     <PostDiv>
-      {Flag ? (
-        <>
-          <Post>
-            <h1>{PostInfo.title}</h1>
-            {PostInfo.image ? (
-              <img
-                src={PostInfo.image}
-                alt=""
-                style={{ width: "100%", height: "auto" }}
-              />
-            ) : null}
-            <p>{PostInfo.content}</p>
-          </Post>
+      <>
+        <Post>
+          <h1>{props.PostInfo.title}</h1>
+          <div className="author">
+            <Avatar
+              size="40"
+              round={true}
+              src={props.PostInfo.author.photoURL}
+              style={{ border: "1px solid #c6c6c6" }}
+            />
+            <p>{props.PostInfo.author.displayName}</p>
+          </div>
+          {props.PostInfo.image ? (
+            <img
+              src={props.PostInfo.image}
+              alt=""
+              style={{ width: "100%", height: "auto" }}
+            />
+          ) : null}
+          <p>{props.PostInfo.content}</p>
+        </Post>
+        {user.uid === props.PostInfo.author.uid && (
           <BtnDiv>
-            <Link to={`/edit/${PostInfo.postNum}`}>
+            <Link to={`/edit/${props.PostInfo.postNum}`}>
               <button className="edit">수정</button>
             </Link>
+
             <button className="delete" onClick={() => DeleteHandler()}>
               삭제
             </button>
           </BtnDiv>
-        </>
-      ) : (
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-      )}
+        )}
+      </>
     </PostDiv>
   );
 }
